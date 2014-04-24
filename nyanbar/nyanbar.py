@@ -108,9 +108,10 @@ class NyanBar(threading.Thread):
         self._audiofile = audiofile
         self._audiopid = None
         self.setDaemon(True)
-        self._started = threading.Event()
+        self._running = False
         self._showing = visible
         if visible:
+            self._running = True
             self.start()
 
     def __enter__(self):
@@ -121,7 +122,7 @@ class NyanBar(threading.Thread):
         self.finish()
 
     def show(self, visible=True):
-        if not self._started.is_set():
+        if not self._running:
             self.start()
         self._showing = visible
 
@@ -133,7 +134,7 @@ class NyanBar(threading.Thread):
                 self._audiopid = subprocess.Popen(args).pid
 
     def run(self):
-        self._started.set()
+        self._running = True
         self.play()
         while not self._finished:
             self._draw(self._amount)
